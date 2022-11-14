@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../static/style.css" rel="stylesheet">
+    <link href="../static/bootstrap.min.css" rel="stylesheet">
+    <title>Vox Chat</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket;
+        $(document).ready(function () {
+            socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+            socket.on('connect', function () {
+                socket.emit('join', {});
+            });
+            socket.on('status', function (data) {
+                $('#chat').val($('#chat').val() + '<' + data.msg + '>\n');
+                $('#chat').scrollTop($('#chat')[0].scrollHeight);
+            });
+            socket.on('message', function (data) {
+                $('#chat').val($('#chat').val() + data.msg + '\n');
+                $('#chat').scrollTop($('#chat')[0].scrollHeight);
+            });
+            $('#send').click(function (e) {
+                text = $('#text').val();
+                $('#text').val('');
+                socket.emit('text', { msg: text });
+            });
+        });
+        function leave_room() {
+            socket.emit('left', {}, function () {
+                socket.disconnect();
+                window.location.href = "{{ url_for('index') }}";
+            });
+        }
+    </script>
+</head>
+
+<body class="text-center">
+    <div class="chatwindow">
+        <h2>Vox Chat</h2>
+        <h2>Room: {{session['room']}}</h2>
+        <br>
+        <textarea id="chat" cols="70" rows="10" placeholder="No messages yet."></textarea>
+        <br><br>
+        <input type="text" id="text" size="60" placeholder="Enter message..." />
+        <button type="button" id="send" class="btn btn-success">SEND</button>
+        <center><button type="button" class="btn btn-danger" onclick=leave_room()>Leave Server</button></center>
+    </div>
+
+</body>
+
+</html>

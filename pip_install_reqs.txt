@@ -1,0 +1,8 @@
+# download python libraries
+python -m pip install -r requirements.txt
+
+# activate venv
+. venv/bin/activate
+
+# for windows look for .ps1 file
+# for mac/linux look for activate without extension
