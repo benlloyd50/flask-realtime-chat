@@ -6,6 +6,7 @@ eventlet==0.33.1
 Flask==2.2.2
 Flask-Session==0.4.0
 Flask-SocketIO==5.3.1
+Flask-WTF==1.0.1
 greenlet==2.0.1
 importlib-metadata==5.0.0
 itsdangerous==2.1.2
@@ -15,4 +16,5 @@ python-engineio==4.3.4
 python-socketio==5.7.2
 six==1.16.0
 Werkzeug==2.2.2
+WTForms==3.0.1
 zipp==3.10.0
