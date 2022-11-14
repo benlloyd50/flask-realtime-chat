@@ -3,7 +3,7 @@
 `git clone https://github.com/benlloyd50/flask-realtime-chat.git`
 
 ## 1. Setup Virtual Environment
-- It is good python practice to use them, the `requirements.txt` file tells you what libraries this project uses
+It is good python practice to use them, the `requirements.txt` file tells you what libraries this project uses
 
 #### Mac/Unix/Windows
 ```
@@ -23,6 +23,7 @@ Note this must be ran in your terminal everytime you start a new one. For most f
 
 ## 3. Run the app
 Flask has a simple command to run the application
+
 `flask run` 
 
 ## 4. Complete
