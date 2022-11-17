@@ -1,20 +1,32 @@
 from flask import redirect, render_template, request, session, url_for
 
 from . import main
-from .forms import LoginForm
+from .forms import LoginForm, RegisterForm
 
-
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        session['username'] = form.name.data
+        session['password'] = form.password.data
+        return redirect(url_for('.chat'))
+    elif request.method == 'GET':
+        form.name.data = session.get('name', '')
+        form.password.data = session.get('password', '')
+    return render_template('index.html', form=form)
+    # TODO - check and store in database
+@main.route('/login', methods=['GET', 'POST'])
 def index():
     """Login form to enter a room."""
     form = LoginForm()
     if form.validate_on_submit():
         session['username'] = form.name.data
-        session['room'] = form.room.data
+        session['password'] = form.password.data
+        session['room'] = 'Default'
         return redirect(url_for('.chat'))
     elif request.method == 'GET':
         form.name.data = session.get('name', '')
-        form.room.data = session.get('room', '')
+        form.password.data = session.get('password', '')
     return render_template('index.html', form=form)
 
 
