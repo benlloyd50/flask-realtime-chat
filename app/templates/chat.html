@@ -22,6 +22,7 @@
             });
             $('#text').keypress(function (e) {
                 var code = e.keyCode || e.which;
+                // when ENTER key is pressed
                 if (code == 13) {
                     text = $('#text').val();
                     $('#text').val('');
@@ -29,13 +30,19 @@
                 }
             });
         });
-        function leave_room() {
+        // Logouts the user from the application
+        function logout() {
             socket.emit('left', {}, function () {
                 socket.disconnect();
 
                 // go back to the login page
-                window.location.href = "{{ url_for('main.index') }}";
+                window.location.href = "{{ url_for('main.login') }}";
             });
+        }
+        function switch_server(name, server_id) {
+            $('#chat').val('');
+            $('#server_title').text(`Server: ${name}`)
+            socket.emit('switched', { server_id: name });
         }
     </script>
 </head>
@@ -44,12 +51,15 @@
     <div class="row">
         <div class="column first">
             <h1>Select</h1>
+            {% for server in servers %}
+            <button name="{{server}}" onclick="switch_server(this.name, 1);">{{ server }}</button><br>
+            {% endfor %}
         </div>
         <div class="column second">
-            <h1>Server: {{ room }}</h1>
+            <h1 id="server_title">Server: {{ room }}</h1>
             <textarea id="chat" cols="80" rows="20" readonly></textarea><br><br>
             <input id="text" size="80" placeholder="Enter your message here"><br><br>
-            <a href="#" onclick="leave_room();">Leave this room</a>
+            <a href="#" onclick="logout();">Log Out</a>
         </div>
     </div>
 
