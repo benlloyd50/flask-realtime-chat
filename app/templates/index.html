@@ -10,7 +10,8 @@
         {{ form.hidden_tag() }}
         {{ form.name.label }}: {{ form.name() }} {% for error in form.name.errors %}{{ error }}{% endfor %}<br>
         {{ form.password.label }}: {{ form.password() }} {% for error in form.password.errors %}{{ error }}{% endfor %}<br>
-        {{ form.submit() }}
+        {{ form.submit() }}<br>
+        {{ error }}
     </form>
 </body>
 

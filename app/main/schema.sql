@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS chat;
 DROP TABLE IF EXISTS servers;
 
 CREATE TABLE user (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     username TEXT NOT NULL,
     u_password TEXT NOT NULL
 );

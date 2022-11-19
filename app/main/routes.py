@@ -1,6 +1,7 @@
 from flask import redirect, render_template, request, session, url_for
 import sqlite3
-import random
+import hashlib
+import uuid
 import os
 
 from . import main
@@ -12,15 +13,16 @@ cursor = db_connection.cursor()
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
-    user_id = random.randint(200, 800)
+    user_id = str(uuid.uuid4())
     form = RegisterForm()
     if form.validate_on_submit():
         session['username'] = form.name.data
         session['password'] = form.password.data
-        sql_query = "INSERT INTO user VALUES({id},'{un}', '{pw}');".format(id = user_id, un = session['username'], pw = session['password'])
+        hashed_password = hashlib.md5(session['password'].encode()).hexdigest()
+        sql_query = "INSERT INTO user VALUES('{id}','{un}', '{pw}');".format(id = user_id, un = session['username'], pw = hashed_password)
         cursor.execute(sql_query)
         db_connection.commit()
-        cursor.close()
+        # cursor.close()
         session['room'] = 'default'
         return redirect(url_for('.chat'))
     elif request.method == 'GET':
@@ -29,18 +31,27 @@ def register():
     return render_template('index.html', form=form)
     # TODO - check and store in database
    
-    
-
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     """Login form to enter a room."""
     form = LoginForm()
     if form.validate_on_submit():
-        session['username'] = form.name.data
-        session['password'] = form.password.data
-        session['room'] = 'default'
-        return redirect(url_for('.chat'))
+        hashed_password = hashlib.md5(form.password.data.encode()).hexdigest()
+        sql_query = "SELECT * FROM user WHERE u_password = '{hP}' AND username = '{un}';".format(hP = hashed_password, un = form.name.data)
+        result = cursor.execute(sql_query)
+        result = result.fetchall()
+        db_connection.commit()
+        # cursor.close()
+        if result:
+            session['username'] = form.name.data
+            session['password'] = form.password.data
+            session['room'] = 'default'
+            return redirect(url_for('.chat'))
+        else:
+            error = "Error: Username or password do not match!"
+            return render_template('index.html', form=form, error=error)
+        
     elif request.method == 'GET':
         form.name.data = session.get('name', '')
         form.password.data = session.get('password', '')
