@@ -11,6 +11,11 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
 cursor = db_connection.cursor()
 
+@main.route('/', methods=['GET', 'POST'])
+def landing_page():
+    return render_template('landingpage.html')
+    
+
 @main.route('/register', methods=['GET', 'POST'])
 def register():
     user_id = str(uuid.uuid4())
