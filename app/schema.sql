@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS servers;
 CREATE TABLE user (
     id TEXT PRIMARY KEY,
     username TEXT NOT NULL,
-    u_password TEXT NOT NULL
+    password TEXT NOT NULL
 );
 CREATE TABLE chat (
     msg TEXT NOT NULL,
