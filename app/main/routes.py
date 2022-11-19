@@ -20,8 +20,14 @@ def register():
         session['password'] = form.password.data
         hashed_password = hashlib.md5(session['password'].encode()).hexdigest()
         sql_query = "INSERT INTO user VALUES('{id}','{un}', '{pw}');".format(id = user_id, un = session['username'], pw = hashed_password)
-        cursor.execute(sql_query)
-        db_connection.commit()
+        try:
+            cursor.execute(sql_query)
+            db_connection.commit()
+        except sqlite3.IntegrityError as er:
+            # error = "SQLite error: {er_args}".format(er_args = er.args)
+            error = "Error: username already exist!"
+            return render_template('index.html', form=form, error = error)
+            
         # cursor.close()
         session['room'] = 'default'
         return redirect(url_for('.chat'))
@@ -72,7 +78,6 @@ def chat():
 
     # TODO get user's server from db, this is what the response from the db should sorta look like
     servers = ['Default', 'Testing', 'CSC 354']
-
 
     return render_template('chat.html', name=name, room=room, servers=servers)
 
