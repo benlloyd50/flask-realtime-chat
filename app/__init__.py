@@ -17,6 +17,7 @@ def create_app(debug=True):
     app.register_blueprint(main_bp)
 
     # Session(app)
-    
+    # from . import db
+    # db.init_app(app)
     socketio.init_app(app)
     return app

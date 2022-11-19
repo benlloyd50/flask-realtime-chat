@@ -19,6 +19,7 @@ Note this must be ran in your terminal everytime you start a new one. For most f
 `. venv/bin/activate`
 #### Windows
 `source venv/bin/activate.bat`
+`venv\Scripts\Activate.ps1`
 
 *If you need to deactivate the venv then run `deactivate`*
 
