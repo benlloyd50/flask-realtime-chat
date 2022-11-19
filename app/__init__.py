@@ -13,7 +13,7 @@ def create_app():
     app.config.from_mapping(
         SECRET_KEY='dev',
         SESSION_TYPE='filesystem',
-        DATABASE=os.path.join(app.instance_path, 'vox'),
+        DATABASE=os.path.join(app.instance_path, 'vox.sqlite'),
     )
 
     try:
