@@ -1,14 +1,10 @@
 from flask import redirect, render_template, request, session, url_for
-import sqlite3
+from .db import get_db, close_db
 import random
-import os
 
 from . import main
 from .forms import LoginForm, RegisterForm
 
-curr_dir = os.path.dirname(os.path.abspath(__file__))
-db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
-cursor = db_connection.cursor()
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -17,19 +13,17 @@ def register():
     if form.validate_on_submit():
         session['username'] = form.name.data
         session['password'] = form.password.data
-        sql_query = "INSERT INTO user VALUES({id},'{un}', '{pw}');".format(id = user_id, un = session['username'], pw = session['password'])
-        cursor.execute(sql_query)
-        db_connection.commit()
-        cursor.close()
+        db = get_db()
+        sql_query = f"INSERT INTO user VALUES({user_id},'{session['username']}', '{session['password']}');"
+        db.execute(sql_query)
+        db.commit()
+        close_db()
         session['room'] = 'default'
         return redirect(url_for('.chat'))
     elif request.method == 'GET':
         form.name.data = session.get('name', '')
         form.password.data = session.get('password', '')
     return render_template('index.html', form=form)
-    # TODO - check and store in database
-   
-    
 
 
 @main.route('/login', methods=['GET', 'POST'])
@@ -64,5 +58,3 @@ def chat():
 
 
     return render_template('chat.html', name=name, room=room, servers=servers)
-
-# cursor.close()
