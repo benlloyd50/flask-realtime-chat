@@ -8,14 +8,12 @@
         q = GENERIC SQL INSERT QUERY
         db.execute(q)
         db.commit()
-        close_db()
 
     Select
         db = get_db()
         sql_query = GENERIC SQL SELECT QUERY
         user = db.execute(sql_query).fetchone() # or fetchall() for a list
         db.commit()
-        close_db()
 """
 import sqlite3
 

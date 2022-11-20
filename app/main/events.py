@@ -14,35 +14,36 @@ import time
 def joined(message: dict):
     room = session.get("room")
     username = session.get('username')
-    join_room(room)
-    emit('status', {'msg': f"{username} has entered the room."}, room=room)
+
+    join_server_and_load_chat(username, room)
+
 
 @socketio.on('switched', namespace="/chat")
 def switched(message: dict):
     username = session['username']
     old_room = session['room']
 
-    leave_room(old_room)
-    emit("status", {'msg': f"{username} has left the server."}, room=old_room)
-
-    # add self to new room
     new_room = message['server_id']
-    print(f"Session room was updated to {new_room}")
+
+    if new_room == old_room:
+        return
+
+    leave_room(old_room)
+    emit("status", {'msg': " has left the server.", 'name': username}, room=old_room)
+
+    join_server_and_load_chat(username, new_room)
     session['room'] = new_room
-    join_room(new_room)
-    emit('status', {'msg': f'{username} has entered the room.'}, room=new_room)
 
 @socketio.on('text', namespace='/chat')
 def text(message: dict):
     room = session.get('room')
     username = session.get('username')
-    sent = f"{username} : {message['msg']}"
-    user_id = 100000009
+    user_id = session.get('user_id')
 
-    emit('message', {'msg': sent}, room=room)
+    emit('message', {'msg': message['msg'], 'name': username }, room=room)
 
     db = get_db()
-    q = f"INSERT INTO chat VALUES('{sent}', '{user_id}', '{time.time()}', '{room}');"
+    q = f"INSERT INTO chat VALUES('{message['msg']}', '{user_id}', '{time.time()}', '{room}');"
     db.execute(q)
     db.commit()
 
@@ -51,4 +52,31 @@ def left(message: dict):
     room = session.get('room')
     username = session.get('username')
     leave_room(room)
-    emit("status", {'msg': username + " has left the server."}, room=room)
+    emit("status", {'msg': " has left the server.", 'name': username}, room=room)
+
+# Common Event Helper Functions
+# Useful patterns that appear frequently are conviently a function, should not be called from outside this file 
+
+def join_server_and_load_chat(username, new_room):
+    """Joins the `new_room` server and takes care of loading that room's chat"""
+    db = get_db()
+    query = f"""SELECT user.name as name, msg, time_sent
+                FROM chat 
+                    INNER JOIN user ON user.id = chat.user_id
+                WHERE server_id = '{new_room}'
+                ORDER BY time_sent ASC;"""
+    db.row_factory = make_dicts 
+    chat_history = db.execute(query).fetchall()
+    db.commit()
+
+    # add self to new room
+    join_room(new_room)
+    # for chat in chat_history:
+    #     chat['time_sent'] = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(chat['time_sent']))
+    emit('load_chat_history', chat_history)
+    emit('status', {'msg': " has entered the server.", 'name': username}, room=new_room)
+
+def make_dicts(cursor, row):
+    """ Used as a row_factory function, use if dict is preferred over sqlite3.row"""
+    return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
