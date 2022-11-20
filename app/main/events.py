@@ -5,57 +5,61 @@
 """
 from flask import session
 from flask_socketio import join_room, leave_room, emit
-from .. import socketio 
+from .. import socketio
 from .db import get_db
 import time
 
 
-@socketio.on('joined', namespace="/chat")
+@socketio.on("joined", namespace="/chat")
 def joined(message: dict):
     room = session.get("room")
-    username = session.get('username')
+    username = session.get("username")
 
     join_server_and_load_chat(username, room)
 
 
-@socketio.on('switched', namespace="/chat")
+@socketio.on("switched", namespace="/chat")
 def switched(message: dict):
-    username = session['username']
-    old_room = session['room']
+    username = session["username"]
+    old_room = session["room"]
 
-    new_room = message['server_id']
+    new_room = message["server_id"]
 
     if new_room == old_room:
         return
 
     leave_room(old_room)
-    emit("status", {'msg': " has left the server.", 'name': username}, room=old_room)
+    emit("status", {"msg": " has left the server.", "name": username}, room=old_room)
 
     join_server_and_load_chat(username, new_room)
-    session['room'] = new_room
+    session["room"] = new_room
 
-@socketio.on('text', namespace='/chat')
+
+@socketio.on("text", namespace="/chat")
 def text(message: dict):
-    room = session.get('room')
-    username = session.get('username')
-    user_id = session.get('user_id')
+    room = session.get("room")
+    username = session.get("username")
+    user_id = session.get("user_id")
 
-    emit('message', {'msg': message['msg'], 'name': username }, room=room)
+    emit("message", {"msg": message["msg"], "name": username}, room=room)
 
     db = get_db()
     q = f"INSERT INTO chat VALUES('{message['msg']}', '{user_id}', '{time.time()}', '{room}');"
     db.execute(q)
     db.commit()
 
-@socketio.on('left', namespace="/chat")
+
+@socketio.on("left", namespace="/chat")
 def left(message: dict):
-    room = session.get('room')
-    username = session.get('username')
+    room = session.get("room")
+    username = session.get("username")
     leave_room(room)
-    emit("status", {'msg': " has left the server.", 'name': username}, room=room)
+    emit("status", {"msg": " has left the server.", "name": username}, room=room)
+
 
 # Common Event Helper Functions
-# Useful patterns that appear frequently are conviently a function, should not be called from outside this file 
+# Useful patterns that appear frequently are conviently a function, should not be called from outside this file
+
 
 def join_server_and_load_chat(username, new_room):
     """Joins the `new_room` server and takes care of loading that room's chat"""
@@ -65,18 +69,18 @@ def join_server_and_load_chat(username, new_room):
                     INNER JOIN user ON user.id = chat.user_id
                 WHERE server_id = '{new_room}'
                 ORDER BY time_sent ASC;"""
-    db.row_factory = make_dicts 
+    db.row_factory = make_dicts
     chat_history = db.execute(query).fetchall()
     db.commit()
 
     # add self to new room
     join_room(new_room)
-    # for chat in chat_history:
-    #     chat['time_sent'] = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(chat['time_sent']))
-    emit('load_chat_history', chat_history)
-    emit('status', {'msg': " has entered the server.", 'name': username}, room=new_room)
+    for chat in chat_history:
+        chat['time_sent'] = time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(chat['time_sent']))
+    emit("load_chat_history", chat_history)
+    emit("status", {"msg": " has entered the server.", "name": username}, room=new_room)
+
 
 def make_dicts(cursor, row):
-    """ Used as a row_factory function, use if dict is preferred over sqlite3.row"""
-    return dict((cursor.description[idx][0], value)
-                for idx, value in enumerate(row))
+    """Used as a row_factory function, use if dict is preferred over sqlite3.row"""
+    return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
