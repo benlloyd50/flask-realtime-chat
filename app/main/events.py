@@ -6,6 +6,8 @@
 from flask import session
 from flask_socketio import join_room, leave_room, emit
 from .. import socketio 
+from .db import get_db
+import time
 
 
 @socketio.on('joined', namespace="/chat")
@@ -33,7 +35,16 @@ def switched(message: dict):
 @socketio.on('text', namespace='/chat')
 def text(message: dict):
     room = session.get('room')
-    emit('message', {'msg': session.get('username') + " : " + message['msg']}, room=room)
+    username = session.get('username')
+    sent = f"{username} : {message['msg']}"
+    user_id = 100000009
+
+    emit('message', {'msg': sent}, room=room)
+
+    db = get_db()
+    q = f"INSERT INTO chat VALUES('{sent}', '{user_id}', '{time.time()}', '{room}');"
+    db.execute(q)
+    db.commit()
 
 @socketio.on('left', namespace="/chat")
 def left(message: dict):

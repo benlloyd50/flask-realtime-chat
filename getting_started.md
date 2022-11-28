@@ -1,30 +1,41 @@
 # Getting Started for developers
 *Depending on your setup you may have to use `python3` rather than `python`*
 
-## 0. Clone the repo
-`git clone https://github.com/benlloyd50/flask-realtime-chat.git`
-
-## 1. Setup Virtual Environment
-It is good python practice to use them, the `requirements.txt` file tells you what libraries this project uses
-
-#### Mac/Unix/Windows
+## First time setup
 ```
-python -m venv venv 
+git clone https://github.com/benlloyd50/flask-realtime-chat.git
+
+python -m venv venv
+
+# For Mac/Unix
+. venv/bin/activate
+# For Windows
+venv\Scripts\Activate.ps1
+
 python -m pip install -r requirements.txt
+
+flask init-db
+flask run
 ```
 
-## 2. Activate the Virtual Environment
-Note this must be ran in your terminal everytime you start a new one. For most flavors of terminal you should see a tag that says `(venv)` which means you are running this venv
-#### Mac/Unix
-`. venv/bin/activate`
-#### Windows
-`source venv/bin/activate.bat`
-`venv\Scripts\Activate.ps1`
+## Subsequent usage
+```
+# Everytime terminal is restarted you must start the virtual environment
+# (venv) means it is active and will appear on the command line
+# For Mac/Unix
+. venv/bin/activate
+# For Windows
+venv\Scripts\Activate.ps1
 
-*If you need to deactivate the venv then run `deactivate`*
+# if you made changes to the schema rebuild the db, this will wipe old data
+flask init-db
 
-## 3. Run the app
-`python run.py` 
+flask run
+# or with debug and lan network accessibility
+flask --debug run --host=0.0.0.0
+```
 
-## 4. Complete
-You should be up and running, if not please submit an issue
+## Common Faults
+- If you need to deactivate the venv then run `deactivate`
+- Check if your venv is running, you will see `(venv)` in your terminal
+- Make sure you have an instance folder with a vox.sqlite file, or else you didn't make the database correctly
