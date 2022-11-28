@@ -8,11 +8,14 @@ from . import main
 from .forms import LoginForm, RegisterForm
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
-db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
-cursor = db_connection.cursor()
+# db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
+# cursor = db_connection.cursor()
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
+    db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
+    cursor = db_connection.cursor()
+    
     user_id = str(uuid.uuid4())
     form = RegisterForm()
     if form.validate_on_submit():
@@ -23,6 +26,7 @@ def register():
         try:
             cursor.execute(sql_query)
             db_connection.commit()
+            cursor.close()
         except sqlite3.IntegrityError as er:
             # error = "SQLite error: {er_args}".format(er_args = er.args)
             error = "Error: username already exist!"
@@ -41,6 +45,9 @@ def register():
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     """Login form to enter a room."""
+    db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
+    cursor = db_connection.cursor() 
+    
     form = LoginForm()
     if form.validate_on_submit():
         hashed_password = hashlib.md5(form.password.data.encode()).hexdigest()
@@ -48,7 +55,7 @@ def login():
         result = cursor.execute(sql_query)
         result = result.fetchall()
         db_connection.commit()
-        # cursor.close()
+        cursor.close()
         if result:
             session['username'] = form.name.data
             session['password'] = form.password.data
@@ -68,6 +75,10 @@ def login():
 def chat():
     """Chat room. The user's name and room must be stored in
     the session."""
+    db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
+    cursor = db_connection.cursor()
+    
+    # server_id = str(uuid.uuid4())
     name = session.get('username', '')
     room = session.get('room', 'SESSION_UNASSIGNED_ROOM')
     # print(f"In chat we got room {room}")
@@ -77,8 +88,20 @@ def chat():
         return redirect(url_for('.login'))
 
     # TODO get user's server from db, this is what the response from the db should sorta look like
-    servers = ['Default', 'Testing', 'CSC 354']
-
-    return render_template('chat.html', name=name, room=room, servers=servers)
+    # sql_query = "SELECT * FROM user WHERE u_password = '{hP}' AND username = '{un}';".format(hP = hashed_password, un = form.name.data)
+    # result = cursor.execute(sql_query)
+    # result = result.fetchall()
+    sql_query = "SELECT serv_name FROM servers;"
+    servers = cursor.execute(sql_query)
+    servers = servers.fetchall()
+    db_connection.commit()
+    # servers.pop(0)
+    cursor.close()
+    
+    server_list = list()
+    for serv in servers:
+        server_list.append(serv[0])
+        
+    return render_template('chat.html', name=name, room=room, servers=server_list)
 
 # cursor.close()
