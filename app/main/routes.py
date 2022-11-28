@@ -23,9 +23,7 @@ def register():
         hashed_password = hashlib.md5(plaintext_pass.encode()).hexdigest()
 
         db = get_db()
-        sql_query = (
-            f"INSERT INTO user VALUES('{user_id}','{username}', '{hashed_password}');"
-        )
+        sql_query = f"INSERT INTO user VALUES('{user_id}','{username}', '{hashed_password}');"
         db.execute(sql_query)
         db.commit()
 
