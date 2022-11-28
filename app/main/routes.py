@@ -8,8 +8,6 @@ from . import main
 from .forms import LoginForm, RegisterForm
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
-# db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
-# cursor = db_connection.cursor()
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -28,7 +26,6 @@ def register():
             db_connection.commit()
             cursor.close()
         except sqlite3.IntegrityError as er:
-            # error = "SQLite error: {er_args}".format(er_args = er.args)
             error = "Error: username already exist!"
             return render_template('index.html', form=form, error = error)
             
@@ -78,24 +75,19 @@ def chat():
     db_connection = sqlite3.connect(curr_dir + "\database.db", check_same_thread=False)
     cursor = db_connection.cursor()
     
-    # server_id = str(uuid.uuid4())
     name = session.get('username', '')
     room = session.get('room', 'SESSION_UNASSIGNED_ROOM')
-    # print(f"In chat we got room {room}")
 
     # if no name or room is set, return them to the login
     if name == '' or room == '':
         return redirect(url_for('.login'))
 
     # TODO get user's server from db, this is what the response from the db should sorta look like
-    # sql_query = "SELECT * FROM user WHERE u_password = '{hP}' AND username = '{un}';".format(hP = hashed_password, un = form.name.data)
-    # result = cursor.execute(sql_query)
-    # result = result.fetchall()
     sql_query = "SELECT serv_name FROM servers;"
     servers = cursor.execute(sql_query)
     servers = servers.fetchall()
     db_connection.commit()
-    # servers.pop(0)
+
     cursor.close()
     
     server_list = list()
