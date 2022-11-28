@@ -26,7 +26,7 @@ def register():
             db_connection.commit()
             cursor.close()
         except sqlite3.IntegrityError as er:
-            error = "Error: username already exist!"
+            error = f"Error: username already exist!, {er}"
             return render_template('index.html', form=form, error = error)
             
         # cursor.close()
@@ -88,12 +88,15 @@ def chat():
     servers = servers.fetchall()
     db_connection.commit()
 
+    print (f"Servers: {servers}")
     cursor.close()
     
     server_list = list()
     for serv in servers:
         server_list.append(serv[0])
-        
+    
+    print (f"Server list: {server_list}")
+    
     return render_template('chat.html', name=name, room=room, servers=server_list)
 
 # cursor.close()
