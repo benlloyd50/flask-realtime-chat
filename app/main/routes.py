@@ -1,4 +1,5 @@
-from flask import redirect, render_template, request, session, url_for, g
+import sqlite3
+from flask import redirect, render_template, request, session, url_for
 from .db import get_db
 import hashlib
 import uuid
@@ -23,9 +24,15 @@ def register():
         hashed_password = hashlib.md5(plaintext_pass.encode()).hexdigest()
 
         db = get_db()
-        sql_query = f"INSERT INTO user VALUES('{user_id}','{username}', '{hashed_password}');"
-        db.execute(sql_query)
-        db.commit()
+        sql_query = (
+            f"INSERT INTO user VALUES('{user_id}','{username}', '{hashed_password}');"
+        )
+        try:
+            db.execute(sql_query)
+            db.commit()
+        except sqlite3.IntegrityError as er:
+            error = "Error: username already exist!"
+            return render_template("index.html", form=form, error=error)
 
         session["username"] = form.name.data
         session["user_id"] = user_id
@@ -41,6 +48,7 @@ def register():
 @main.route("/login", methods=["GET", "POST"])
 def login():
     """Login form to enter a room."""
+
     form = LoginForm()
     error = ""
     if form.validate_on_submit():
@@ -76,6 +84,8 @@ def login():
 def chat():
     """Chat room. The user's name and room must be stored in
     the session."""
+    db = get_db()
+
     name = session.get("username", "")
     room = session.get("room", "SESSION_UNASSIGNED_ROOM")
 
@@ -83,12 +93,16 @@ def chat():
     if name == "" or room == "":
         return redirect(url_for(".login"))
 
-    # TODO get user's server from db, this is what the response from the db should sorta look like
-    servers = ["Default", "Testing", "CSC 354"]
+    sql_query = "SELECT name FROM server;"
+    servers = db.execute(sql_query).fetchall()
+    db.commit()
 
-    return render_template(
-        "chat.html",
-        name=name,
-        room=room,
-        servers=servers,
-    )
+    # print(f"Servers: {servers}")
+
+    server_list = list()
+    for serv in servers:
+        server_list.append(serv[0])
+
+    # print(f"Server list: {server_list}")
+
+    return render_template("chat.html", name=name, room=room, servers=server_list)

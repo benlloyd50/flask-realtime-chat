@@ -18,7 +18,7 @@ flask init-db
 flask run
 ```
 
-## Everytime after
+## Subsequent usage
 ```
 # Everytime terminal is restarted you must start the virtual environment
 # (venv) means it is active and will appear on the command line
