@@ -7,6 +7,7 @@ from flask import session
 from flask_socketio import join_room, leave_room, emit
 from .. import socketio
 from .db import get_db
+from html import escape
 import time
 
 
@@ -41,10 +42,12 @@ def text(message: dict):
     username = session.get("username")
     user_id = session.get("user_id")
 
-    emit("message", {"msg": message["msg"], "name": username}, room=room)
+    ascii_msg = escape(message["msg"])
+
+    emit("message", {"msg": ascii_msg, "name": username}, room=room)
 
     db = get_db()
-    q = f"INSERT INTO chat VALUES('{message['msg']}', '{user_id}', '{time.time()}', '{room}');"
+    q = f"INSERT INTO chat VALUES('{ascii_msg}', '{user_id}', '{time.time()}', '{room}');"
     db.execute(q)
     db.commit()
 
