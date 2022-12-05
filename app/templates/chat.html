@@ -12,11 +12,12 @@
             socket.on('connect', function () {
                 socket.emit('joined', {});
             });
-            socket.on('load_chat_history', function(data) {
+            socket.on('load_chat_history', function (data) {
                 // will clear existing elements before appending history
                 $('.chat').remove();
                 data.forEach(chat => {
-                    $(".chatwindow").append($(`<div class=\"chat\">${chat['name']} : ${chat['msg']}</div>`));
+                    $(".chatwindow").append($(`<div class=\"chat\"><span style="display: flex; justify-content: left">${chat['name']} : ${chat['msg']}</span>`));
+                    // $(".chatwindow").append($(`< div class=\"chat\"><span style="display: flex; justify - content: left">${chat['name']} : ${chat['msg']}</span><span class="msgdate" style="display: flex; justify - content: flex - end">${chat['time_sent']}</span></div>`));
                 });
             })
             socket.on('status', function (data) {
@@ -53,7 +54,7 @@
         }
         function fire_dummy_messages() {
             console.log("fired add_message")
-            for (let i=0; i < 100; i++) {
+            for (let i = 0; i < 100; i++) {
                 $(".chatwindow").append($(`<div class=\"chat\">Tester : Eat my shorts</div>`));
             }
             $('.chatwindow').scrollTop($(".chatwindow")[0].scrollHeight);
@@ -67,16 +68,17 @@
             <h1>Select</h1>
             <section class="serverwindow">
                 {% for server in servers %}
-                <button class="serverbutton" name="{{server}}" onclick="switch_server(this.name, 1);">{{ server }}</button><br>
+                <button class="serverbutton" name="{{server}}" onclick="switch_server(this.name, 1);">{{ server
+                    }}</button><br>
                 {% endfor %}
             </section>
             <a href="#" onclick="logout();">Log Out</a><br>
-            <button onclick="fire_dummy_messages();">Test message</button><br>
+            <!-- <button onclick="fire_dummy_messages();">Test message</button><br> -->
         </div>
         <div class="column second">
             <h1 id="server_title">Server: {{ room }}</h1>
             <section class="chatwindow">
-            <!---- This section will hold child objects -->
+                <!--  This section will hold child objects -->
             </section>
             <input class="chatinput" id="text" size="80" placeholder="Enter your message here"><br><br>
         </div>
@@ -85,5 +87,3 @@
 </body>
 
 </html>
-
-

@@ -20,6 +20,14 @@
     color: gray;
 }
 
+/* .msgdate {
+    color: transparent;
+}
+
+.chat:hover .msgdate {
+    color: black;
+} */
+
 .chatwindow {
     position: relative;
     flex: auto;
@@ -37,7 +45,7 @@
     color: #ffffff;
     background: #2b2d36;
     border-top: 1px solid #2671ff;
-    box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28);
+    box-shadow: 0 0 4px rgba(0, 0, 0, .14), 0 4px 8px rgba(0, 0, 0, .28);
 }
 
 .serverwindow {
@@ -55,4 +63,3 @@
     width: 100%;
     padding: 5px 1px 2px 1px;
 }
-
