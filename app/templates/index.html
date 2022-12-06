@@ -12,7 +12,7 @@
         <form method="POST" class="forms">
             {{ form.hidden_tag() }}
             {{ form.name(class_="textf", style="margin-top:30px", placeholder="Username") }} {% for error in form.name.errors %}{{ error }}{% endfor %}<br>
-            {{ form.password(class_="textf", placeholder="Password") }} {% for error in form.password.errors %}{{ error }}{% endfor %}<br>
+            {{ form.password(class_="textf", placeholder="Password", type="password") }} {% for error in form.password.errors %}{{ error }}{% endfor %}<br>
             {{ form.submit(class_="button6") }}<br>
             {{ error }}
         </form>
